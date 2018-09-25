@@ -140,11 +140,12 @@ public final class BraintreePlugin extends CordovaPlugin {
         if (requestCode == DROP_IN_REQUEST) {
 
             PaymentMethodNonce paymentMethodNonce = null;
+            String deviceData = null;
 
             if (resultCode == Activity.RESULT_OK) {
                 DropInResult result = intent.getParcelableExtra(DropInResult.EXTRA_DROP_IN_RESULT);
                 paymentMethodNonce = result.getPaymentMethodNonce();
-                String deviceData = result.getDeviceData();
+                deviceData = result.getDeviceData();
             }
 
             this.handleDropInPaymentUiResult(resultCode, paymentMethodNonce, deviceData);
