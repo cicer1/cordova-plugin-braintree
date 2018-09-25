@@ -147,7 +147,7 @@ public final class BraintreePlugin extends CordovaPlugin {
                 String deviceData = result.getDeviceData();
             }
 
-            this.handleDropInPaymentUiResult(resultCode, paymentMethodNonce);
+            this.handleDropInPaymentUiResult(resultCode, paymentMethodNonce, deviceData);
         }
         else if (requestCode == PAYMENT_BUTTON_REQUEST) {
             //TODO
