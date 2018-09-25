@@ -82,6 +82,7 @@ public final class BraintreePlugin extends CordovaPlugin {
         }
 
         dropInRequest = new DropInRequest().clientToken(token);
+        dropInRequest.collectDeviceData(true);
 
         if (dropInRequest == null) {
             callbackContext.error("The Braintree client failed to initialize.");
@@ -143,6 +144,7 @@ public final class BraintreePlugin extends CordovaPlugin {
             if (resultCode == Activity.RESULT_OK) {
                 DropInResult result = intent.getParcelableExtra(DropInResult.EXTRA_DROP_IN_RESULT);
                 paymentMethodNonce = result.getPaymentMethodNonce();
+                String deviceData = result.getDeviceData();
             }
 
             this.handleDropInPaymentUiResult(resultCode, paymentMethodNonce);
@@ -167,7 +169,7 @@ public final class BraintreePlugin extends CordovaPlugin {
      * @param resultCode Indicates the result of the UI.
      * @param paymentMethodNonce Contains information about a successful payment.
      */
-    private void handleDropInPaymentUiResult(int resultCode, PaymentMethodNonce paymentMethodNonce) {
+    private void handleDropInPaymentUiResult(int resultCode, PaymentMethodNonce paymentMethodNonce, String deviceData) {
 
         if (dropInUICallbackContext == null) {
             return;
@@ -187,7 +189,13 @@ public final class BraintreePlugin extends CordovaPlugin {
             return;
         }
 
-        Map<String, Object> resultMap = this.getPaymentUINonceResult(paymentMethodNonce);
+        if (deviceData == null) {
+            dropInUICallbackContext.error("Result was not RESULT_CANCELED, but no deviceData was returned from the Braintree SDK.");
+            dropInUICallbackContext = null;
+            return;
+        }
+
+        Map<String, Object> resultMap = this.getPaymentUINonceResult(paymentMethodNonce, deviceData);
         dropInUICallbackContext.success(new JSONObject(resultMap));
         dropInUICallbackContext = null;
     }
@@ -199,13 +207,14 @@ public final class BraintreePlugin extends CordovaPlugin {
      * @param paymentMethodNonce The nonce used to build a dictionary of data from.
      * @return The dictionary of data populated via the given payment method nonce.
      */
-    private Map<String, Object> getPaymentUINonceResult(PaymentMethodNonce paymentMethodNonce) {
+    private Map<String, Object> getPaymentUINonceResult(PaymentMethodNonce paymentMethodNonce, String deviceData) {
 
         Map<String, Object> resultMap = new HashMap<String, Object>();
 
         resultMap.put("nonce", paymentMethodNonce.getNonce());
         resultMap.put("type", paymentMethodNonce.getTypeLabel());
         resultMap.put("localizedDescription", paymentMethodNonce.getDescription());
+        resultMap.put("deviceData", deviceData);
 
         // Card
         if (paymentMethodNonce instanceof CardNonce) {
