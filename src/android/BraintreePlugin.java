@@ -16,6 +16,7 @@ import com.braintreepayments.api.models.PayPalAccountNonce;
 import com.braintreepayments.api.models.PaymentMethodNonce;
 import com.braintreepayments.api.models.ThreeDSecureInfo;
 import com.braintreepayments.api.models.VenmoAccountNonce;
+import com.braintreepayments.BraintreeFragment;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -59,10 +60,53 @@ public final class BraintreePlugin extends CordovaPlugin {
 
             return true;
         }
+        else if (action.equals("getDeviceData")) {
+
+            try {
+                this.getDeviceData(args, callbackContext);
+            }
+            catch (Exception exception) {
+                callbackContext.error("BraintreePlugin uncaught exception: " + exception.getMessage());
+            }
+
+            return true;
+        }
         else {
             // The given action was not handled above.
             return false;
         }
+    }
+
+    private synchronized void getDeviceData(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+
+        // Ensure we have the correct number of arguments.
+        if (args.length() != 1) {
+            callbackContext.error("A token is required.");
+            return;
+        }
+
+        // Obtain the arguments.
+        String token = args.getString(0);
+
+        if (token == null || token.equals("")) {
+            callbackContext.error("A token is required.");
+            return;
+        }
+
+
+        try {
+            mBraintreeFragment = BraintreeFragment.newInstance(this, token);
+            DataCollector.collectDeviceData(braintreeFragment, new BraintreeResponseListener<String>() {
+            @Override
+            public void onResponse(String deviceData) {
+                callbackContext.success(deviceData);        
+            }
+        });
+        } catch (InvalidArgumentException e) {
+            callbackContext.error("Something went wrong...");
+        }
+
+
     }
 
     private synchronized void initialize(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
