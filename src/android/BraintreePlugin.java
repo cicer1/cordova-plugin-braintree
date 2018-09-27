@@ -19,7 +19,7 @@ import com.braintreepayments.api.models.VenmoAccountNonce;
 import com.braintreepayments.api.interfaces.BraintreeResponseListener;
 import com.braintreepayments.api.BraintreeFragment;
 import com.braintreepayments.api.DataCollector;
-
+import com.braintreepayments.api.exceptions.InvalidArgumentException;
 import java.lang.RuntimeException;
 import java.util.HashMap;
 import java.util.Map;
@@ -98,15 +98,16 @@ public final class BraintreePlugin extends CordovaPlugin {
 
 
         try {
-            BraintreeFragment braintreeFragment = BraintreeFragment.newInstance(this.cordova.getActivity(), token);
+            Activity activity = this.cordova.getActivity();
+            BraintreeFragment braintreeFragment = BraintreeFragment.newInstance(activity, token);
             DataCollector.collectDeviceData(braintreeFragment, new BraintreeResponseListener<String>() {
             @Override
             public void onResponse(String deviceData) {
                 callbackContext.success(deviceData);        
             }
         });
-        } catch (RuntimeException e) {
-            callbackContext.error("Something went wrong...");
+        } catch (InvalidArgumentException e) {
+            callbackContext.error(e.getMessage());
         }
 
 
