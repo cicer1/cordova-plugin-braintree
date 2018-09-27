@@ -16,6 +16,7 @@ import com.braintreepayments.api.models.PayPalAccountNonce;
 import com.braintreepayments.api.models.PaymentMethodNonce;
 import com.braintreepayments.api.models.ThreeDSecureInfo;
 import com.braintreepayments.api.models.VenmoAccountNonce;
+import com.braintreepayments.api.interfaces.BraintreeResponseListener;
 import com.braintreepayments.api.BraintreeFragment;
 import com.braintreepayments.api.DataCollector;
 
@@ -97,7 +98,7 @@ public final class BraintreePlugin extends CordovaPlugin {
 
 
         try {
-            BraintreeFragment mBraintreeFragment = BraintreeFragment.newInstance(this, token);
+            BraintreeFragment braintreeFragment = BraintreeFragment.newInstance(this.cordova.getActivity(), token);
             DataCollector.collectDeviceData(braintreeFragment, new BraintreeResponseListener<String>() {
             @Override
             public void onResponse(String deviceData) {
