@@ -90,4 +90,14 @@ BraintreePlugin.presentDropInPaymentUI = function showDropInUI(options, successC
 	exec(successCallback, failureCallback, PLUGIN_ID, "presentDropInPaymentUI", pluginOptions);
 };
 
+BraintreePlugin.getDeviceData = function getDeviceData(token, successCallback, failureCallback) {
+
+    if (!token || typeof(token) !== "string") {
+        failureCallback("A non-null, non-empty string must be provided for the token parameter.");
+        return;
+    }
+
+    exec(successCallback, failureCallback, PLUGIN_ID, "getDeviceData", [token]);
+};
+
 module.exports = BraintreePlugin;
